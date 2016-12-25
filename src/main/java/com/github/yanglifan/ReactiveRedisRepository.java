@@ -6,20 +6,24 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
+import java.nio.ByteBuffer;
 
-//@Repository
+@Repository
 public class ReactiveRedisRepository {
     @Autowired
     RedisConnectionFactory connectionFactory;
 
     private ReactiveRedisConnection redisConnection;
 
-    private RedisSerializer<String> serializer = new StringRedisSerializer();
-
     @PostConstruct
     public void init() throws Exception {
         redisConnection = connectionFactory.getReactiveConnection();
+    }
+
+    public Mono<Boolean> set(String key, String value) {
+        return redisConnection.stringCommands().set(ByteBuffer.wrap(key.getBytes()), ByteBuffer.wrap(value.getBytes()));
     }
 }
